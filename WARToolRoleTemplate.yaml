@@ -1,35 +1,58 @@
 ---
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: >
-  "This Role grants 1Strategy the ability to create, list, and get workloads in the 
-  Well Architected Review Tool in the customer's account. This Role does not allow 
-  1Strategy to access any other resource in the customer's account other than the Well-Architected Tool."
+  "This Role grants 1Strategy the ability to create, list, and get workloads in the
+  Well Architected Review Tool and run Trusted Advisor in the customer's account
+
+  This Role does not allow 1Strategy to access to other resources in the customer's account."
+
+Parameters:
+  TrustedAccount:
+    Type: Number
+    Description: 1Strategy Account Id. Engineers will assume the IAM Role in your account from this AWS account.
+    MinValue: 100000000000
+    MaxValue: 999999999999
+    NoEcho: true
+
 Resources:
   WellArchitectedReviewToolRole:
     Type: AWS::IAM::Role
-    Properties: 
+    Properties:
       RoleName: WellArchitectedReviewToolRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
-        Statement: 
-          - 
-            Effect: "Allow"
-            Principal: 
-              AWS: '494090490970'
-            Action: 
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: !Ref TrustedAccount
+            Action:
               - "sts:AssumeRole"
             Condition:
               BoolIfExists:
-                  aws:MultiFactorAuthPresent: 'true'
+                aws:MultiFactorAuthPresent: "true"
       Policies:
-        -
-          PolicyName: "Well-Architected-Review-Tool-Policy"
+        - PolicyName: "Well-Architected-Review-Tool-Policy"
           PolicyDocument:
             Version: "2012-10-17"
-            Statement: 
-              - 
-                Sid: wellarchitected
+            Statement:
+              - Sid: wellarchitected
                 Effect: Allow
-                Action: 
-                - "wellarchitected:*"
+                Action:
+                  - wellarchitected:*
+                Resource: "*"
+              - Sid: AllowTrustedAdvisorChecks
+                Effect: Allow
+                Action:
+                  - trustedadvisor:DescribeCheckRefreshStatuses,
+                  - trustedadvisor:DescribeCheckSummaries,
+                  - trustedadvisor:ExcludeCheckItems,
+                  - trustedadvisor:IncludeCheckItems,
+                  - trustedadvisor:RefreshCheck,
+                  - trustedadvisor:DescribeCheckItems
+                Resource: arn:aws:trustedadvisor:*:*:checks/*/*
+              - Sid: AllowTrustedAdvisorAcct
+                Effect: Allow
+                Action:
+                  - trustedadvisor:DescribeAccountAccess,
+                  - trustedadvisor:DescribeNotificationPreferences
                 Resource: "*"
