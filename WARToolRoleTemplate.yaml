@@ -1,0 +1,35 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  "This Role grants 1Strategy the ability to create, list, and get workloads in the 
+  Well Architected Review Tool in the customer's account. This Role does not allow 
+  1Strategy to access any other resource in the customer's account other than the Well-Architected Tool."
+Resources:
+  WellArchitectedReviewToolRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: WellArchitectedReviewToolRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              AWS: '494090490970'
+            Action: 
+              - "sts:AssumeRole"
+            Condition:
+              BoolIfExists:
+                  aws:MultiFactorAuthPresent: 'true'
+      Policies:
+        -
+          PolicyName: "Well-Architected-Review-Tool-Policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement: 
+              - 
+                Sid: wellarchitected
+                Effect: Allow
+                Action: 
+                - "wellarchitected:*"
+                Resource: "*"
