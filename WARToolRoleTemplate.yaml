@@ -12,6 +12,7 @@ Parameters:
     Description: 1Strategy Account Id. Engineers will assume the IAM Role in your account from this AWS account.
     MinValue: 100000000000
     MaxValue: 999999999999
+    Default: '494090490970'
     NoEcho: true
 
 Resources:
